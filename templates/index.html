@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem ML Bantuan Sosial</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Sistem Kelayakan Penerima Bantuan (ML)</h2>
+    
+    <div class="row">
+        <!-- Prediksi -->
+        <div class="col-md-5 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                    <span>Cek Kelayakan</span>
+                    <small class="badge bg-light text-dark">Status ML: {{ status_model }}</small>
+                </div>
+                <div class="card-body">
+                    <form id="predictForm">
+                        <div class="mb-2">
+                            <label>Pendapatan (Juta Rp)</label>
+                            <input type="number" step="0.1" class="form-control" name="pendapatan" required>
+                        </div>
+                        <div class="mb-2">
+                            <label>Jumlah Tanggungan (Orang)</label>
+                            <input type="number" class="form-control" name="tanggungan" required>
+                        </div>
+                        <div class="mb-2">
+                            <label>Usia (Tahun)</label>
+                            <input type="number" class="form-control" name="usia" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Kondisi Rumah (Skor 1-10)</label>
+                            <input type="number" class="form-control" name="kondisi" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Prediksi</button>
+                    </form>
+                    <div id="hasil-prediksi" class="alert mt-3 d-none text-center fw-bold"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Setting & Data -->
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-dark text-white">Pengaturan & Manajemen Data</div>
+                <div class="card-body">
+                    <form id="settingForm" class="mb-3 border-bottom pb-3">
+                        <label class="fw-bold">Pilih Algoritma & Latih Ulang ML:</label>
+                        <div class="input-group mt-2">
+                            <select class="form-select" name="algoritma">
+                                <option value="rf">Random Forest</option>
+                                <option value="svm">Support Vector Machine (SVM)</option>
+                                <option value="lr">Logistic Regression</option>
+                            </select>
+                            <button type="submit" class="btn btn-warning">Apply & Retrain</button>
+                        </div>
+                    </form>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <form action="/import" method="POST" enctype="multipart/form-data" class="d-flex w-75">
+                            <input type="file" name="file" class="form-control me-2" accept=".xlsx, .xls, .csv" required>
+                            <button type="submit" class="btn btn-info text-white">Import Data</button>
+                        </form>
+                        <a href="/export" class="btn btn-danger">Export Excel</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">Database Warga (Top 10)</div>
+                <div class="card-body overflow-auto">
+                    <table class="table table-striped text-center">
+                        <thead>
+                            <tr>
+                                <th>Pendapatan</th><th>Tanggungan</th><th>Usia</th><th>Kondisi</th><th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in data %}
+                            <tr>
+                                <td>{{ row.pendapatan | round(2) }} Juta</td>
+                                <td>{{ row.tanggungan }}</td>
+                                <td>{{ row.usia }}</td>
+                                <td>{{ row.kondisi_rumah }}</td>
+                                <td>
+                                    <span class="badge {% if row.layak == 1 %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if row.layak == 1 %}Layak{% else %}Tidak Layak{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-muted">Data masih kosong. Silakan import Excel!</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('predictForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const res = await fetch('/predict', { method: 'POST', body: formData });
+        const data = await res.json();
+        
+        const hasilDiv = document.getElementById('hasil-prediksi');
+        hasilDiv.classList.remove('d-none', 'alert-success', 'alert-danger', 'alert-warning');
+        
+        if (data.hasil) {
+            hasilDiv.innerText = data.hasil;
+            hasilDiv.classList.add(data.hasil.includes('Tidak') ? 'alert-danger' : 'alert-success');
+        } else {
+            hasilDiv.innerText = 'Error: ' + data.error;
+            hasilDiv.classList.add('alert-warning');
+        }
+    }
+
+    document.getElementById('settingForm').onsubmit = async function(e) {
+        e.preventDefault();
+        const btn = this.querySelector('button');
+        const prevText = btn.innerText;
+        btn.innerText = "Processing...";
+        btn.disabled = true;
+        
+        const formData = new FormData(this);
+        const res = await fetch('/settings', { method: 'POST', body: formData });
+        const data = await res.json();
+        
+        alert(data.status);
+        btn.innerText = prevText;
+        btn.disabled = false;
+        location.reload(); 
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
