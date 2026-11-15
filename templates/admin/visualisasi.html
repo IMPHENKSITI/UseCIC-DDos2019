@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DDoS Shield — Visualisasi &amp; Statistik</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #060b13;
+      color: #e2e8f0;
+      font-family: 'Inter', sans-serif;
+    }
+    /* Scrollbar Gelap Halus */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080e1a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex text-slate-300">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="w-64 bg-[#080e1a] border-r border-[#152138] flex flex-col justify-between shrink-0 select-none">
+    <div>
+      <!-- Brand & Logo Header -->
+      <div class="h-16 flex items-center gap-2.5 px-6 pt-2">
+        <svg class="w-6 h-6 text-sky-400 stroke-current fill-none stroke-[2]" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path>
+          <path d="M9 12l2 2 4-4"></path>
+        </svg>
+        <span class="text-white font-semibold text-lg tracking-tight">DDoS Shield</span>
+        <span class="ml-1 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-[#0f766e] text-teal-200 uppercase">
+          ADMIN
+        </span>
+      </div>
+
+      <!-- Navigasi Menu -->
+      <nav class="mt-4 px-3 space-y-1 text-sm font-normal">
+        <a href="dashboard_tampilan.html" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Dashboard
+        </a>
+
+        <a href="monitoring_tampilan.html" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Monitoring Real-time
+        </a>
+
+        <a href="alert_tampilan.html" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Daftar Alert
+        </a>
+
+        <!-- Menu Aktif: Visualisasi & Statistik -->
+        <a href="#" class="flex items-center px-4 py-2.5 rounded-xl bg-[#156573] text-white font-medium shadow-sm transition">
+          Visualisasi & Statistik
+        </a>
+
+        <a href="#" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Performa Model
+        </a>
+
+        <a href="#" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Manajemen Pengguna
+        </a>
+
+        <a href="#" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Manajemen Model
+        </a>
+
+        <a href="#" class="flex items-center px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/40 transition">
+          Log Sistem
+        </a>
+      </nav>
+    </div>
+
+    <!-- Profil Pengguna di Bawah Sidebar -->
+    <div class="p-4 border-t border-[#152138]/60">
+      <div class="mb-2">
+        <div class="text-white text-sm font-semibold tracking-wide">Aidil Fitriansyah</div>
+        <div class="text-xs text-slate-400 font-medium">admin</div>
+      </div>
+      
+      <!-- Tombol Dropdown: Lihat sebagai Admin -->
+      <div class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-[#0c1626] border border-[#1b2b48] text-xs text-slate-300 cursor-pointer hover:border-slate-500 transition">
+        <span>Lihat sebagai: <strong class="text-slate-100 font-medium">Admin</strong></span>
+        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= KONTEN UTAMA ================= -->
+  <main class="flex-1 p-8 overflow-y-auto">
+    <!-- Header Halaman -->
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold text-white tracking-tight">Visualisasi &amp; Statistik</h1>
+      <p class="text-xs text-slate-400 mt-1">Pola serangan dari waktu ke waktu</p>
+    </header>
+
+    <!-- Kartu Atas: Bar Chart Tren Serangan per Jam -->
+    <div class="bg-[#0a1222] border border-[#152138] rounded-xl p-6 shadow-sm mb-6">
+      <h3 class="text-sm font-semibold text-white tracking-wide mb-8">
+        Tren serangan per jam — hari ini
+      </h3>
+
+      <!-- Container Bar Chart Vertikal -->
+      <div class="h-44 flex items-end justify-between gap-2.5 px-4 pb-2 border-b border-[#152138]/60">
+        <!-- Bar 1 -->
+        <div class="flex-1 bg-[#2e74a1] h-[22%] rounded-t-sm hover:brightness-110 transition" title="00:00 - 02:00"></div>
+
+        <!-- Bar 2 -->
+        <div class="flex-1 bg-[#2e74a1] h-[15%] rounded-t-sm hover:brightness-110 transition" title="02:00 - 04:00"></div>
+
+        <!-- Bar 3 -->
+        <div class="flex-1 bg-[#2e74a1] h-[7%] rounded-t-sm hover:brightness-110 transition" title="04:00 - 06:00"></div>
+
+        <!-- Bar 4 -->
+        <div class="flex-1 bg-[#2e74a1] h-[26%] rounded-t-sm hover:brightness-110 transition" title="06:00 - 08:00"></div>
+
+        <!-- Bar 5 -->
+        <div class="flex-1 bg-[#2e74a1] h-[48%] rounded-t-sm hover:brightness-110 transition" title="08:00 - 10:00"></div>
+
+        <!-- Bar 6: Lonjakan Serangan Tertinggi (Peak - Warna Merah/Coral) -->
+        <div class="flex-1 bg-[#de4a38] h-[85%] rounded-t-sm hover:brightness-110 transition shadow-sm" title="10:00 - 12:00 (Peak Serangan)"></div>
+
+        <!-- Bar 7 -->
+        <div class="flex-1 bg-[#2e74a1] h-[60%] rounded-t-sm hover:brightness-110 transition" title="12:00 - 14:00"></div>
+
+        <!-- Bar 8 -->
+        <div class="flex-1 bg-[#2e74a1] h-[52%] rounded-t-sm hover:brightness-110 transition" title="14:00 - 16:00"></div>
+
+        <!-- Bar 9 -->
+        <div class="flex-1 bg-[#2e74a1] h-[68%] rounded-t-sm hover:brightness-110 transition" title="16:00 - 18:00"></div>
+
+        <!-- Bar 10 -->
+        <div class="flex-1 bg-[#2e74a1] h-[44%] rounded-t-sm hover:brightness-110 transition" title="18:00 - 20:00"></div>
+
+        <!-- Bar 11 -->
+        <div class="flex-1 bg-[#2e74a1] h-[34%] rounded-t-sm hover:brightness-110 transition" title="20:00 - 22:00"></div>
+
+        <!-- Bar 12 -->
+        <div class="flex-1 bg-[#2e74a1] h-[20%] rounded-t-sm hover:brightness-110 transition" title="22:00 - 24:00"></div>
+      </div>
+    </div>
+
+    <!-- Bagian Bawah: 2 Kolom Kartu -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      
+      <!-- Kartu Kiri: Serangan per jenis -->
+      <div class="bg-[#0a1222] border border-[#152138] rounded-xl p-6 shadow-sm">
+        <h3 class="text-sm font-semibold text-white tracking-wide mb-5">
+          Serangan per jenis
+        </h3>
+
+        <div class="space-y-4 text-xs font-mono">
+          <!-- Row 1: Syn (312) -->
+          <div class="flex items-center justify-between gap-4">
+            <span class="w-28 text-slate-300 shrink-0 font-sans">Syn</span>
+            <div class="flex-1 bg-[#0e182e] h-2.5 rounded-full overflow-hidden">
+              <div class="bg-[#1b7e94] h-full rounded-full" style="width: 88%;"></div>
+            </div>
+            <span class="w-8 text-right text-slate-200 font-semibold font-sans">312</span>
+          </div>
+
+          <!-- Row 2: DrDoS_UDP (214) -->
+          <div class="flex items-center justify-between gap-4">
+            <span class="w-28 text-slate-300 shrink-0 font-sans">DrDoS_UDP</span>
+            <div class="flex-1 bg-[#0e182e] h-2.5 rounded-full overflow-hidden">
+              <div class="bg-[#1b7e94] h-full rounded-full" style="width: 60%;"></div>
+            </div>
+            <span class="w-8 text-right text-slate-200 font-semibold font-sans">214</span>
+          </div>
+
+          <!-- Row 3: DrDoS_DNS (176) -->
+          <div class="flex items-center justify-between gap-4">
+            <span class="w-28 text-slate-300 shrink-0 font-sans">DrDoS_DNS</span>
+            <div class="flex-1 bg-[#0e182e] h-2.5 rounded-full overflow-hidden">
+              <div class="bg-[#1b7e94] h-full rounded-full" style="width: 50%;"></div>
+            </div>
+            <span class="w-8 text-right text-slate-200 font-semibold font-sans">176</span>
+          </div>
+
+          <!-- Row 4: DrDoS_MSSQL (131) -->
+          <div class="flex items-center justify-between gap-4">
+            <span class="w-28 text-slate-300 shrink-0 font-sans">DrDoS_MSSQL</span>
+            <div class="flex-1 bg-[#0e182e] h-2.5 rounded-full overflow-hidden">
+              <div class="bg-[#1b7e94] h-full rounded-full" style="width: 37%;"></div>
+            </div>
+            <span class="w-8 text-right text-slate-200 font-semibold font-sans">131</span>
+          </div>
+
+          <!-- Row 5: DrDoS_SNMP (98) -->
+          <div class="flex items-center justify-between gap-4">
+            <span class="w-28 text-slate-300 shrink-0 font-sans">DrDoS_SNMP</span>
+            <div class="flex-1 bg-[#0e182e] h-2.5 rounded-full overflow-hidden">
+              <div class="bg-[#1b7e94] h-full rounded-full" style="width: 28%;"></div>
+            </div>
+            <span class="w-8 text-right text-slate-200 font-semibold font-sans">98</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kartu Kanan: Normal vs Serangan -->
+      <div class="bg-[#0a1222] border border-[#152138] rounded-xl p-6 shadow-sm flex flex-col justify-between">
+        <div>
+          <h3 class="text-sm font-semibold text-white tracking-wide mb-6">
+            Normal vs Serangan
+          </h3>
+
+          <!-- Progress Bar Dual Segment (Hijau & Merah) -->
+          <div class="w-full bg-[#0e182e] h-3.5 rounded-full overflow-hidden flex">
+            <!-- Normal: 91.7% (Hijau) -->
+            <div class="bg-[#22c55e] h-full" style="width: 91.7%;"></div>
+            <!-- Serangan: 8.3% (Merah) -->
+            <div class="bg-[#ef4444] h-full" style="width: 8.3%;"></div>
+          </div>
+
+          <!-- Keterangan Persentase di Bawah Bar -->
+          <div class="text-xs text-slate-400 mt-4">
+            Normal 91,7% · Serangan 8,3%
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

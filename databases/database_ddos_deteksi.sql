@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS sumber_dataset (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS alur_jaringan (
     id_alur                     BIGINT         AUTO_INCREMENT PRIMARY KEY,
-    id_sumber                   INT            REFERENCES sumber_dataset(id_sumber),
-    id_jenis                    INT            REFERENCES jenis_serangan(id_jenis),
+    id_sumber                   INT,
+    id_jenis                    INT,
 
     -- Identitas alur
     flow_id                     VARCHAR(100),
@@ -171,7 +171,10 @@ CREATE TABLE IF NOT EXISTS alur_jaringan (
     INDEX idx_alur_jenis   (id_jenis),
     INDEX idx_alur_sumber  (id_sumber),
     INDEX idx_alur_proto   (protokol),
-    INDEX idx_alur_ts      (timestamp_alur)
+    INDEX idx_alur_ts      (timestamp_alur),
+
+    CONSTRAINT fk_alur_sumber FOREIGN KEY (id_sumber) REFERENCES sumber_dataset(id_sumber) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_alur_jenis  FOREIGN KEY (id_jenis)  REFERENCES jenis_serangan(id_jenis) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB COMMENT='Data alur jaringan CICDDoS2019 beserta fitur-fiturnya';
 
 -- ============================================================
@@ -197,8 +200,8 @@ CREATE TABLE IF NOT EXISTS model_ml (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS sesi_latih (
     id_sesi           INT          AUTO_INCREMENT PRIMARY KEY,
-    id_model          INT          REFERENCES model_ml(id_model),
-    id_sumber         INT          REFERENCES sumber_dataset(id_sumber),
+    id_model          INT,
+    id_sumber         INT,
     jumlah_data_latih INT,
     jumlah_data_uji   INT,
     rasio_split       DOUBLE       DEFAULT 0.2,
@@ -210,7 +213,10 @@ CREATE TABLE IF NOT EXISTS sesi_latih (
     dibuat_pada       DATETIME     DEFAULT CURRENT_TIMESTAMP,
 
     INDEX idx_sesi_model  (id_model),
-    INDEX idx_sesi_sumber (id_sumber)
+    INDEX idx_sesi_sumber (id_sumber),
+
+    CONSTRAINT fk_sesi_model  FOREIGN KEY (id_model)  REFERENCES model_ml(id_model) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_sesi_sumber FOREIGN KEY (id_sumber) REFERENCES sumber_dataset(id_sumber) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB COMMENT='Riwayat sesi pelatihan model ML';
 
 -- ============================================================
@@ -218,8 +224,8 @@ CREATE TABLE IF NOT EXISTS sesi_latih (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS hasil_deteksi (
     id_deteksi      BIGINT       AUTO_INCREMENT PRIMARY KEY,
-    id_model        INT          REFERENCES model_ml(id_model),
-    id_alur         BIGINT       REFERENCES alur_jaringan(id_alur),
+    id_model        INT,
+    id_alur         BIGINT,
     label_prediksi  VARCHAR(50)  NOT NULL,
     label_aktual    VARCHAR(50),
     probabilitas    DOUBLE,
@@ -228,7 +234,10 @@ CREATE TABLE IF NOT EXISTS hasil_deteksi (
 
     INDEX idx_deteksi_model (id_model),
     INDEX idx_deteksi_alur  (id_alur),
-    INDEX idx_deteksi_label (label_prediksi)
+    INDEX idx_deteksi_label (label_prediksi),
+
+    CONSTRAINT fk_deteksi_model FOREIGN KEY (id_model) REFERENCES model_ml(id_model) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_deteksi_alur  FOREIGN KEY (id_alur)  REFERENCES alur_jaringan(id_alur) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB COMMENT='Hasil prediksi/deteksi model ML terhadap alur jaringan';
 
 -- ============================================================
@@ -256,7 +265,7 @@ CREATE TABLE IF NOT EXISTS pengguna (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS sesi_masuk (
     id_sesi       INT          AUTO_INCREMENT PRIMARY KEY,
-    id_pengguna   INT          REFERENCES pengguna(id_pengguna),
+    id_pengguna   INT,
     alamat_ip     VARCHAR(45),
     user_agent    TEXT,
     waktu_masuk   DATETIME     DEFAULT CURRENT_TIMESTAMP,
@@ -264,7 +273,9 @@ CREATE TABLE IF NOT EXISTS sesi_masuk (
     berhasil      TINYINT(1)   DEFAULT 1 COMMENT '1=login sukses, 0=gagal',
 
     INDEX idx_sesi_pengguna (id_pengguna),
-    INDEX idx_sesi_waktu    (waktu_masuk)
+    INDEX idx_sesi_waktu    (waktu_masuk),
+
+    CONSTRAINT fk_sesi_pengguna FOREIGN KEY (id_pengguna) REFERENCES pengguna(id_pengguna) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB COMMENT='Audit log sesi login pengguna';
 
 -- ============================================================
@@ -283,16 +294,17 @@ INSERT INTO jenis_serangan (nama_serangan, kategori, deskripsi) VALUES
 ('DNS',      'DDoS',   'Serangan DDoS amplifikasi DNS'),
 ('SNMP',     'DDoS',   'Serangan DDoS melalui protokol SNMP'),
 ('WebDDoS',  'DDoS',   'Serangan DDoS pada layer aplikasi web (HTTP Flood)'),
-('BENIGN',   'Normal', 'Lalu lintas jaringan normal / tidak berbahaya');
+('BENIGN',   'Normal', 'Lalu lintas jaringan normal / tidak berbahaya'),
+('UDPLag',   'DDoS',   'Serangan DDoS berbasis UDP Lag / manipulasi jeda paket');
 
-INSERT INTO sumber_dataset (nama_dataset, versi, tanggal_capture, keterangan) VALUES
-('CICDDoS2019', '2019', '2018-11-03',
- 'Dataset serangan DDoS dari Canadian Institute for Cybersecurity (CIC). Berisi berbagai jenis serangan refleksi DDoS.');
+INSERT INTO sumber_dataset (nama_dataset, versi, tanggal_capture, total_sampel, keterangan) VALUES
+('CICDDoS2019', '2019', '2018-11-03', 141873,
+ 'Dataset CICDDoS2019 First Day (Day 2 Evaluation - 2018-11-03). Berisi 7 varian serangan flood/refleksi utama (LDAP, MSSQL, NetBIOS, Portmap, Syn, UDP, UDPLag) serta trafik normal BENIGN.');
 
 INSERT INTO model_ml (nama_model, versi, akurasi, presisi, recall, f1_score, roc_auc, tanggal_latih, path_file_model, keterangan) VALUES
-('XGBoost',       '1.0', 0.9995, 0.9993, 0.9994, 0.9994, 0.9999, NOW(), 'Minggu6_XGBoost.pkl',
+('XGBoost',       '1.0', 0.9995, 0.9993, 0.9994, 0.9994, 0.9999, NOW(), 'models/xgboost_ddos.pkl',
  'Model XGBoost - hasil terbaik dari perbandingan Minggu 6'),
-('Random Forest', '1.0', 0.9980, 0.9978, 0.9975, 0.9976, 0.9995, NOW(), 'Minggu6_RF.pkl',
+('Random Forest', '1.0', 0.9980, 0.9978, 0.9975, 0.9976, 0.9995, NOW(), 'models/rf_ddos.pkl',
  'Random Forest sebagai pembanding XGBoost');
 
 -- Seed akun pengguna awal (kata sandi harus diganti setelah deploy)
