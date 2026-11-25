@@ -1,0 +1,30 @@
+{% extends "layout_app.html" %}
+{% block title %}Performa Model — DDoS Shield{% endblock %}
+{% block heading %}Performa Model{% endblock %}
+{% block subheading %}Evaluasi model XGBoost yang sedang aktif (data test){% endblock %}
+{% block topright %}<span class="muted small">Dilatih ulang 3 hari lalu</span>{% endblock %}
+
+{% block content %}
+<div class="grid4">
+  <div class="card stat"><div class="lbl">Accuracy (8 kelas)</div><div class="val green">99,95%</div><div class="sub">data test 5.689 baris</div></div>
+  <div class="card stat"><div class="lbl">F1-score macro</div><div class="val blue">0,9994</div><div class="sub">rata-rata 8 kelas</div></div>
+  <div class="card stat"><div class="lbl">Recall serangan</div><div class="val green">99,94%</div><div class="sub">serangan vs normal (XGBoost)</div></div>
+  <div class="card stat"><div class="lbl">Waktu prediksi</div><div class="val">0,18 dtk</div><div class="sub">untuk 5.689 data uji</div></div>
+</div>
+
+{% set lemah = rows|selectattr(3, 'lt', 0.30)|map(attribute=0)|list %}
+{% if lemah %}
+<div class="warnbox"><b>Perlu perhatian:</b> {{ lemah|join(', ') }} (F1 &lt; 0,30) — rumpun reflection attack yang masih sering tertukar. Pertimbangkan pelatihan ulang.</div>
+{% endif %}
+
+<div class="tbl-wrap"><table class="tbl">
+  <thead><tr><th>Kelas</th><th>Precision</th><th>Recall</th><th>F1-score</th></tr></thead>
+  <tbody>
+  {% for k, p, r, f in rows %}
+    <tr><td><b>{{ k }}</b></td><td>{{ '%.3f'|format(p)|replace('.', ',') }}</td><td>{{ '%.3f'|format(r)|replace('.', ',') }}</td>
+      <td class="{{ 'red' if f < 0.30 else 'yellow' if f < 0.70 else 'green' }}">{{ '%.3f'|format(f)|replace('.', ',') }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% if user.peran == 'admin' %}<a class="btn primary" href="{{ url_for('admin_model') }}">Latih Ulang Model</a>{% endif %}
+{% endblock %}

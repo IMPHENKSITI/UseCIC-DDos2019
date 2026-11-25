@@ -1,0 +1,47 @@
+{% extends "layout_app.html" %}
+{% block title %}Riwayat Deteksi — DDoS Shield{% endblock %}
+{% block heading %}Riwayat Deteksi{% endblock %}
+{% block subheading %}Hasil deteksi (hasil_deteksi){% endblock %}
+
+{% block content %}
+<div class="tbl-wrap"><table class="tbl">
+  <thead>
+    <tr>
+      <th>Waktu</th>
+      <th>Jenis Serangan</th>
+      <th>IP Sumber</th>
+      <th>Probabilitas</th>
+      <th>Prediksi Benar?</th>
+      <th>Tingkat</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td>{{ r.waktu_str }}</td>
+      <td><b>{{ r.jenis }}</b></td>
+      <td>{{ r.ip }}</td>
+      <td>{{ r.conf }}%</td>
+      <td>
+        {% if r.prediksi_benar %}
+          <span class="badge-pill pill-yes">Ya</span>
+        {% else %}
+          <span class="badge-pill pill-no">Tidak</span>
+        {% endif %}
+      </td>
+      <td>
+        <span class="badge-level
+          {% if r.tingkat == 'Tinggi' %}level-tinggi
+          {% elif r.tingkat == 'Sedang' %}level-sedang
+          {% elif r.tingkat == 'Rendah' %}level-rendah
+          {% else %}level-normal{% endif %}">
+          {{ r.tingkat }}
+        </span>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted" style="text-align:center;padding:32px">Tidak ada data.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

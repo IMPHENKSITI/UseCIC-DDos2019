@@ -1,0 +1,35 @@
+{% extends "layout_app.html" %}
+{% block title %}Ringkasan Admin — DDoS Shield{% endblock %}
+{% block heading %}Ringkasan Admin{% endblock %}
+{% block subheading %}Kondisi pengguna, model, dan sistem{% endblock %}
+{% block topright %}<span class="muted small">Diperbarui 09:45</span>{% endblock %}
+
+{% block content %}
+<div class="grid4">
+  <div class="card stat"><div class="lbl">Pengguna aktif</div><div class="val">{{ n_aktif }}</div><div class="sub">{{ n_analis }} analis · {{ n_admin }} admin</div></div>
+  <div class="card stat"><div class="lbl">Menunggu persetujuan</div><div class="val yellow">{{ menunggu|length }}</div><div class="sub">pendaftaran baru</div></div>
+  <div class="card stat"><div class="lbl">Model aktif</div><div class="val blue">XGBoost</div><div class="sub">versi 1.0 · F1 macro 0,9994</div></div>
+  <div class="card stat"><div class="lbl">Status sistem</div><div class="val green">Normal</div><div class="sub">1 peringatan modul</div></div>
+</div>
+
+<div class="grid2e">
+  <div class="card">
+    <h3>Pendaftaran Menunggu Persetujuan</h3>
+    {% for u in menunggu %}
+      <div class="alert-item" style="align-items:center;justify-content:space-between">
+        <div><b>{{ u.nama }}</b><span>{{ u.email }} · {{ u.terdaftar }}</span></div>
+        <div>
+          <form style="display:inline" method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='setujui') }}"><button class="btn primary sm">Setujui</button></form>
+          <form style="display:inline" method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='tolak') }}"><button class="btn danger sm">Tolak</button></form>
+        </div>
+      </div>
+    {% else %}<p class="muted">Tidak ada pendaftaran baru.</p>{% endfor %}
+  </div>
+  <div class="card">
+    <h3>Kesehatan Modul Sistem</h3>
+    {% for nama, ket, st in modules %}
+      <div class="health"><span class="dot {{ 'green' if st=='ok' else 'yellow' }}" style="margin:0"></span>{{ nama }}<em>{{ ket }}</em></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

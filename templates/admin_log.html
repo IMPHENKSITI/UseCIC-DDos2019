@@ -1,0 +1,23 @@
+{% extends "layout_app.html" %}
+{% block title %}Log Sistem — DDoS Shield{% endblock %}
+{% block heading %}Log Sistem{% endblock %}
+{% block subheading %}Aktivitas dan kesalahan modul sistem (bukan log serangan){% endblock %}
+{% block topright %}<a class="btn primary" href="#">Unduh Log</a>{% endblock %}
+
+{% block content %}
+<form class="toolbar filters" method="get">
+  <select name="level"><option value="">Semua level</option>
+    {% for l in ['INFO','WARN','ERROR'] %}<option {{ 'selected' if f.level==l }}>{{ l }}</option>{% endfor %}</select>
+  <select name="modul"><option value="">Semua modul</option>
+    {% for m in moduls %}<option {{ 'selected' if f.modul==m }}>{{ m }}</option>{% endfor %}</select>
+  <select><option>Hari ini</option><option>7 hari</option></select>
+</form>
+<div class="tbl-wrap"><table class="tbl">
+  <thead><tr><th>Waktu</th><th>Level</th><th>Modul</th><th>Pesan</th></tr></thead>
+  <tbody>{% for l in rows %}
+    <tr><td><b>{{ l.waktu }}</b></td>
+      <td><span class="badge {{ 'b-yellow' if l.level=='WARN' else 'b-red' if l.level=='ERROR' else 'b-blue' }}">{{ l.level }}</span></td>
+      <td><b>{{ l.modul }}</b></td><td class="muted">{{ l.pesan }}</td></tr>
+  {% else %}<tr><td colspan="4" class="muted" style="text-align:center;padding:24px">Tidak ada log.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layout_app.html" %}
+{% block title %}Pengaturan Akun — DDoS Shield{% endblock %}
+{% block heading %}Pengaturan Akun{% endblock %}
+{% block subheading %}Data pada tabel pengguna{% endblock %}
+
+{% block content %}
+<form method="post" class="pengaturan-form">
+  <div class="peng-card">
+
+    <div class="peng-field">
+      <label>Nama lengkap</label>
+      <input type="text" name="nama" value="{{ user.nama }}" placeholder="Nama lengkap">
+    </div>
+
+    <div class="peng-field">
+      <label>Username</label>
+      <input type="text" name="username" value="{{ user.username if user.username else user.nama.split()[0]|lower }}" placeholder="Username">
+    </div>
+
+    <div class="peng-field">
+      <label>Email</label>
+      <input type="email" name="email" value="{{ user.email }}" placeholder="Email">
+    </div>
+
+    <div class="peng-field">
+      <label>Kata sandi baru</label>
+      <input type="password" name="password" placeholder="Kosongkan jika tidak diganti">
+    </div>
+
+    <div style="margin-top:8px">
+      <button class="btn primary peng-btn" type="submit">Simpan Perubahan</button>
+    </div>
+
+  </div>
+</form>
+{% endblock %}

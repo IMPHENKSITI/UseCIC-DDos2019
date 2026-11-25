@@ -1,14 +1,29 @@
-# Virtual Environment
-env/
-venv/
-.venv/
-
-# Python Cache
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
 
-# Environment Variables
-.env
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
 
-# IDE
+# Datasets (large files)
+dataset/raw/*.csv
+dataset/raw/*.pcap
+*.csv.gz
+
+# Machine Learning Models (bila ukuran sangat besar)
+# models/*.pkl
+
+# SQLite Database
+*.db
+*.sqlite3
+
+# OS / IDE
 .vscode/
+.idea/
+.DS_Store
+Thumbs.db
+

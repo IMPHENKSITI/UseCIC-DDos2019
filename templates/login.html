@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Masuk — DDoS Shield{% endblock %}
+{% block body %}
+<div class="auth">
+  <div class="l">
+    <a href="{{ url_for('landing') }}" class="brand">{% include "_shield.html" %} DDoS Shield</a>
+    <div class="mid">
+      <h2>Deteksi serangan DDoS secara real-time</h2>
+      <p>Sistem klasifikasi 13 jenis trafik jaringan berbasis machine learning untuk tim keamanan kampus.</p>
+    </div>
+    <div class="foot">© 2026 Program Studi Keamanan Sistem Informasi</div>
+  </div>
+  <div class="r">
+    <form class="authcard" method="post">
+      <h2>Masuk ke akun</h2><p class="sub">Khusus admin dan analis keamanan terdaftar</p>
+      {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
+      <div class="field"><label>Email</label><input name="email" type="email" placeholder="nama@polbeng.ac.id" required></div>
+      <div class="field"><label>Kata Sandi</label><input name="password" type="password" placeholder="••••••••" required></div>
+      <div style="text-align:right;margin:-6px 0 12px"><a class="small" href="#">Lupa kata sandi?</a></div>
+      <button class="btn primary">Masuk</button>
+      <div class="foot">Belum punya akun? <a href="{{ url_for('register') }}">Daftar</a> · Lupa akses? Hubungi admin tim IT kampus.</div>
+    </form>
+  </div>
+</div>
+{% endblock %}

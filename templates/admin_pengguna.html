@@ -1,0 +1,53 @@
+{% extends "layout_app.html" %}
+{% block title %}Manajemen Pengguna — DDoS Shield{% endblock %}
+{% block heading %}Manajemen Pengguna{% endblock %}
+{% block subheading %}Setujui pendaftaran, atur peran, dan kelola akses{% endblock %}
+{% block topright %}<button class="btn primary" id="btn-add-user" type="button">+ Tambah Pengguna</button>{% endblock %}
+
+{% block content %}
+<form class="toolbar filters" method="get">
+  <select name="peran"><option value="">Semua peran</option>
+    {% for p in ['analis','admin'] %}<option value="{{ p }}" {{ 'selected' if f.peran==p }}>{{ p.capitalize() }}</option>{% endfor %}</select>
+  <select name="status"><option value="">Semua status</option>
+    {% for s in ['aktif','menunggu','nonaktif'] %}<option value="{{ s }}" {{ 'selected' if f.status==s }}>{{ s.capitalize() }}</option>{% endfor %}</select>
+  <input class="sp" type="search" name="q" value="{{ f.q }}" placeholder="Cari nama / email...">
+</form>
+
+<div class="tbl-wrap"><table class="tbl">
+  <thead><tr><th>Nama</th><th>Email</th><th>Peran</th><th>Status</th><th>Terdaftar</th><th>Aksi</th></tr></thead>
+  <tbody>
+  {% for u in rows %}
+    <tr>
+      <td><b>{{ u.nama }}</b></td><td>{{ u.email }}</td>
+      <td>{% if u.peran %}<span class="badge {{ 'b-red' if u.peran=='admin' else 'b-blue' }}">{{ u.peran.capitalize() }}</span>{% else %}—{% endif %}</td>
+      <td><span class="badge {{ 'b-green' if u.status=='aktif' else 'b-yellow' if u.status=='menunggu' else 'b-gray' }}">{{ u.status.capitalize() }}</span></td>
+      <td>{{ u.terdaftar }}</td>
+      <td>
+        {% if u.status == 'menunggu' %}
+          <form method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='setujui') }}"><button class="btn primary sm">Setujui</button></form>
+          <form method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='tolak') }}"><button class="btn danger sm">Tolak</button></form>
+        {% elif u.status == 'nonaktif' %}
+          <form method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='aktifkan') }}"><button class="btn ghost sm">Aktifkan</button></form>
+        {% else %}
+          <form method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='peran') }}"><button class="btn ghost sm" {{ 'disabled' if u.id==user.id }}>Ubah Peran</button></form>
+          {% if u.peran != 'admin' %}
+          <form method="post" action="{{ url_for('admin_aksi', uid=u.id, aksi='nonaktifkan') }}"><button class="btn danger sm">Nonaktifkan</button></form>
+          {% endif %}
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}<tr><td colspan="6" class="muted" style="text-align:center;padding:24px">Tidak ada pengguna.</td></tr>{% endfor %}
+  </tbody>
+</table></div>
+
+<dialog id="dlg-user">
+  <form method="post" action="{{ url_for('admin_tambah') }}">
+    <h3 style="margin-bottom:14px">Tambah Pengguna</h3>
+    <div class="field"><label>Nama lengkap</label><input name="nama" required></div>
+    <div class="field"><label>Email</label><input name="email" type="email" required></div>
+    <p class="muted small" style="margin-bottom:12px">Sandi awal: <b>password123</b> (minta pengguna menggantinya).</p>
+    <button class="btn primary">Simpan</button>
+    <button class="btn ghost" type="button" id="dlg-close">Batal</button>
+  </form>
+</dialog>
+{% endblock %}

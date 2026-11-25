@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Daftar — DDoS Shield{% endblock %}
+{% block body %}
+<div class="auth">
+  <div class="l">
+    <a href="{{ url_for('landing') }}" class="brand">{% include "_shield.html" %} DDoS Shield</a>
+    <div class="mid">
+      <h2>Buat akun untuk mulai memantau jaringan</h2>
+      <p>Daftarkan diri sebagai analis keamanan. Setelah disetujui admin, Anda bisa langsung memakai dashboard deteksi DDoS.</p>
+    </div>
+    <div class="foot">© 2026 Program Studi Keamanan Sistem Informasi</div>
+  </div>
+  <div class="r">
+    <form class="authcard" method="post" style="max-width:330px">
+      <h2>Daftar akun baru</h2><p class="sub">Isi data di bawah untuk membuat akun</p>
+      {% with msgs = get_flashed_messages(with_categories=true) %}{% for c, m in msgs %}<div class="flash {{ c }}">{{ m }}</div>{% endfor %}{% endwith %}
+      <div class="field"><label>Nama lengkap</label><input name="nama" placeholder="Nama sesuai identitas" required></div>
+      <div class="field"><label>Email institusi</label><input name="email" type="email" placeholder="nama@polbeng.ac.id" required></div>
+      <div class="field"><label>Kata sandi</label><input name="password" type="password" placeholder="Minimal 8 karakter" required minlength="8"></div>
+      <p class="hint">Gunakan kombinasi huruf, angka, dan simbol.</p>
+      <div class="field"><label>Konfirmasi kata sandi</label><input name="password2" type="password" placeholder="Ulangi kata sandi" required></div>
+      <label class="chk" style="align-items:flex-start;font-size:10px;color:var(--muted)"><input type="checkbox" name="setuju"> Saya setuju data saya dipakai untuk keperluan sistem ini dan akun saya perlu disetujui admin.</label>
+      <button class="btn primary" style="margin-top:6px">Buat Akun</button>
+      <div class="foot">Sudah punya akun? <a href="{{ url_for('login') }}">Masuk</a></div>
+    </form>
+  </div>
+</div>
+{% endblock %}

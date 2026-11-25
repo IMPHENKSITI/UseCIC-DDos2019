@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Profil Saya — DDoS Shield{% endblock %}
+
+{% block body %}
+{# ========== TOP NAVBAR (sama seperti cari_deteksi) ========== #}
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="topnav-brand" href="{{ url_for('cari_deteksi') }}">
+      {% include "_shield.html" %} <span>DDoS Shield</span>
+    </a>
+    <div class="topnav-right">
+      <div class="topnav-menu-wrap">
+        <button class="topnav-menu-btn" onclick="this.parentElement.classList.toggle('open')">
+          <span class="ic">▦</span> Menu Saya ▾
+        </button>
+        <div class="topnav-dropdown">
+          <a href="{{ url_for('riwayat') }}">▭ Riwayat Deteksi</a>
+          <a href="{{ url_for('export') }}">⇩ Export Laporan</a>
+          <a href="{{ url_for('notifikasi') }}">◔ Notifikasi</a>
+          <a href="{{ url_for('pengaturan') }}">✲ Pengaturan Akun</a>
+          <div class="topnav-sep"></div>
+          <a href="{{ url_for('logout') }}">⎋ Keluar</a>
+        </div>
+      </div>
+      <a class="topnav-avatar topnav-avatar-active" href="{{ url_for('profil') }}" title="Profil Saya">{{ inisial(user.nama) }}</a>
+    </div>
+  </div>
+</nav>
+
+{# ========== PROFIL CONTENT ========== #}
+<div class="cari-wrap">
+  <h1 class="cari-title">Profil Saya</h1>
+  <p class="cari-sub">Informasi akun</p>
+
+  <div class="profil-grid">
+
+    {# ---- Kartu kiri: Avatar + Nama ---- #}
+    <div class="profil-card profil-left">
+      <div class="profil-avatar">{{ inisial(user.nama) }}</div>
+      <div class="profil-name">{{ user.nama }}</div>
+      <div class="profil-email">{{ user.email }}</div>
+      <span class="profil-role-badge">{{ 'admin' if user.peran == 'admin' else 'user' }}</span>
+    </div>
+
+    {# ---- Kartu kanan: Tabel informasi ---- #}
+    <div class="profil-card profil-right">
+      <div class="profil-info-title">Informasi akun</div>
+      <table class="profil-table">
+        <tbody>
+          <tr>
+            <td>Username</td>
+            <td>{{ user.username if user.username else user.nama.split()[0]|lower }}</td>
+          </tr>
+          <tr>
+            <td>Peran</td>
+            <td>{{ 'admin' if user.peran == 'admin' else 'user' }}</td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td>
+              {% if user.status == 'aktif' %}
+                <span class="profil-status-badge">Aktif</span>
+              {% else %}
+                <span class="profil-status-nonaktif">{{ user.status|capitalize }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>Terdaftar sejak (dibuat_pada)</td>
+            <td>{{ user.terdaftar if user.terdaftar else '—' }}</td>
+          </tr>
+          <tr>
+            <td>Terakhir masuk</td>
+            <td>{{ last_login }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

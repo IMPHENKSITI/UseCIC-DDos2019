@@ -1,0 +1,45 @@
+{% extends "layout_app.html" %}
+{% block title %}Manajemen Model — DDoS Shield{% endblock %}
+{% block heading %}Manajemen Model{% endblock %}
+{% block subheading %}Pantau, latih ulang, dan ganti versi model deteksi{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="row">
+    <div><b style="font-size:13px">XGBoost · versi 1.0 (Minggu6_XGBoost.pkl)</b> <span class="badge b-green">Aktif</span></div>
+    <form method="post" action="{{ url_for('admin_model_latih') }}"><button class="btn primary">Latih Ulang Model</button></form>
+  </div>
+  <div class="grid4" style="margin:14px 0 0">
+    <div><span class="muted small">Accuracy (8 kelas)</span><br><b style="font-size:14px">99,95%</b></div>
+    <div><span class="muted small">F1-score macro</span><br><b style="font-size:14px">0,9994</b></div>
+    <div><span class="muted small">Recall serangan (biner)</span><br><b style="font-size:14px">99,94%</b></div>
+    <div><span class="muted small">Status Model</span><br><b style="font-size:14px;color:#2e8b3d;">Optimal</b></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Data Pelatihan</h3>
+  <div class="grid4" style="margin-bottom:12px">
+    <div><span class="muted small">Data train</span><br><b style="font-size:14px">{{ dataset_info.train_rows if dataset_info else '22.755' }} baris</b></div>
+    <div><span class="muted small">Data test</span><br><b style="font-size:14px">{{ dataset_info.test_rows if dataset_info else '5.689' }} baris</b></div>
+    <div><span class="muted small">Jumlah fitur</span><br><b style="font-size:14px">{{ dataset_info.features if dataset_info else '83' }} fitur</b></div>
+    <div><span class="muted small">Jumlah kelas</span><br><b style="font-size:14px">{{ dataset_info.classes if dataset_info else '8' }} kelas</b></div>
+  </div>
+  <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e2e8f0;">
+    <form method="post" action="{{ url_for('admin_dataset_upload') }}" enctype="multipart/form-data" style="display:flex; gap:10px; align-items:center;">
+      <input type="file" name="file_dataset" accept=".csv" required style="font-size:12px; padding:4px 8px;">
+      <button type="submit" class="btn primary sm">Unggah Dataset CSV</button>
+    </form>
+  </div>
+</div>
+
+<h3 style="font-size:12.5px;margin-bottom:10px">Riwayat Versi Model</h3>
+<div class="tbl-wrap"><table class="tbl">
+  <thead><tr><th>Versi</th><th>Algoritma</th><th>F1 Macro</th><th>Status</th><th>Aksi</th></tr></thead>
+  <tbody>{% for m in versions %}
+    <tr><td>{{ m.versi }}</td><td>{{ m.algoritma }}</td><td>{{ m.f1 }}</td>
+      <td><span class="badge {{ 'b-green' if m.aktif else 'b-gray' }}">{{ 'Aktif' if m.aktif else 'Arsip' }}</span></td>
+      <td>{% if m.aktif %}—{% else %}<form method="post" action="{{ url_for('admin_model_aktif', versi=m.versi) }}"><button class="btn ghost sm">Aktifkan</button></form>{% endif %}</td></tr>
+  {% endfor %}</tbody>
+</table></div>
+{% endblock %}

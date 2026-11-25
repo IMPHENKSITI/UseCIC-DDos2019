@@ -1,0 +1,33 @@
+{% extends "layout_app.html" %}
+{% block title %}Visualisasi &amp; Statistik — DDoS Shield{% endblock %}
+{% block heading %}Visualisasi &amp; Statistik{% endblock %}
+{% block subheading %}Pola serangan dari waktu ke waktu{% endblock %}
+{% block topright %}
+  <form class="filters" method="get"><select name="rentang">
+    {% for r in ['hari ini','7 hari','30 hari'] %}<option value="{{ r }}" {{ 'selected' if r==rentang }}>{{ r.capitalize() }}</option>{% endfor %}
+  </select></form>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h3>Tren Serangan per Jam — {{ rentang }}</h3>
+  <div class="vbars">
+    {% for lbl, v in bars %}<div class="{{ 'peak' if loop.index0==peak }}" style="height:{{ (v / mx * 100)|round|int }}%" title="{{ lbl }}:00 — {{ v }} serangan"></div>{% endfor %}
+  </div>
+  <div class="vlabels">{% for lbl, v in bars %}<span>{{ lbl }}</span>{% endfor %}</div>
+</div>
+
+<div class="grid2e" style="grid-template-columns:1.1fr 1fr;align-items:start">
+  <div class="card">
+    <h3>Serangan per Jenis ({{ '{:,}'.format(total).replace(',', '.') }} total)</h3>
+    {% for n, v in per_jenis %}
+      <div class="hbar"><span class="n">{{ n }}</span><span class="t"><i style="width:{{ (v / pmax * 100)|round|int }}%;background:var(--accent)"></i></span><span class="p">{{ v }}</span></div>
+    {% endfor %}
+  </div>
+  <div class="card">
+    <h3>Trafik Normal vs Serangan</h3>
+    <div class="split"><i style="width:91.7%;background:var(--green)"></i><i style="width:8.3%;background:var(--red)"></i></div>
+    <div class="row small"><span class="green">Normal 91,7% (11.438)</span><span class="red">Serangan 8,3% (1.042)</span></div>
+  </div>
+</div>
+{% endblock %}

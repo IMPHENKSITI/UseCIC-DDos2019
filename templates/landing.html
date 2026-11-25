@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}DDoS Shield — Pantau serangan DDoS real-time{% endblock %}
+{% block body %}
+<div style="border-bottom:1px solid var(--border)">
+  <div class="wrap lnav">
+    <div class="brand" style="padding:0">{% include "_shield.html" %} DDoS Shield</div>
+    <nav><a href="#fitur">Fitur</a><a href="#cara">Cara Kerja</a><a href="#jenis">Jenis Serangan</a></nav>
+    <div style="display:flex;gap:8px">
+      <a class="btn light sm" style="background:transparent;color:#fff;border-color:#3a4a60" href="{{ url_for('login') }}">Masuk</a>
+      <a class="btn primary sm" href="{{ url_for('register') }}">Daftar</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <span class="tag">Proyek AI untuk Keamanan</span>
+      <h1>Pantau dan kenali serangan DDoS secara real-time</h1>
+      <p>Dashboard keamanan jaringan yang mengklasifikasikan trafik ke dalam 13 kategori menggunakan machine learning, lengkap dengan alert dan laporan untuk tim keamanan.</p>
+      <div class="btns">
+        <a class="btn primary" href="{{ url_for('register') }}">Mulai Sekarang</a>
+        <a class="btn light" style="background:transparent;color:#fff;border-color:#3a4a60" href="#cara">Lihat Cara Kerja</a>
+      </div>
+    </div>
+    <div class="mini">
+      <div class="row"><b style="font-size:10px">Ringkasan hari ini</b><span class="muted" style="font-size:9px">Ilustrasi tampilan</span></div>
+      <div class="g">
+        <div>TOTAL TRAFIK<b>12.480</b></div><div>SERANGAN<b>1.042</b></div><div>NORMAL<b>11.438</b></div>
+      </div>
+      <div class="hbar"><span class="n" style="width:40px">Syn</span><span class="t"><i style="width:85%;background:#0f2a4a"></i></span></div>
+      <div class="hbar"><span class="n" style="width:40px">DrDoS_UDP</span><span class="t"><i style="width:50%;background:var(--blue)"></i></span></div>
+      <div class="hbar"><span class="n" style="width:40px">BENIGN</span><span class="t"><i style="width:2%;background:var(--green)"></i></span></div>
+    </div>
+  </section>
+
+  <section class="section" id="fitur">
+    <h2>Fitur utama</h2><p class="muted small">Semua yang dibutuhkan tim keamanan untuk memantau dan menindaklanjuti serangan.</p>
+    <div class="fgrid">
+      <div class="fcard"><div class="i">⌁</div><b>Monitoring real-time</b><p>Pantau flow jaringan yang sedang diproses beserta hasil klasifikasinya saat itu juga.</p></div>
+      <div class="fcard"><div class="i">▦</div><b>Klasifikasi 13 jenis trafik</b><p>Membedakan trafik normal dari 12 jenis serangan DDoS memakai model XGBoost.</p></div>
+      <div class="fcard"><div class="i">◔</div><b>Alert &amp; notifikasi</b><p>Peringatan otomatis saat terdeteksi serangan berisiko tinggi, tanpa harus memantau terus-menerus.</p></div>
+      <div class="fcard"><div class="i">▭</div><b>Riwayat deteksi</b><p>Arsip hasil deteksi yang bisa dicari berdasarkan tanggal, jenis serangan, atau IP sumber.</p></div>
+      <div class="fcard"><div class="i">◎</div><b>Evaluasi performa model</b><p>Lihat precision, recall, dan F1-score per kelas agar tahu kapan model perlu dilatih ulang.</p></div>
+      <div class="fcard"><div class="i">⇩</div><b>Export laporan</b><p>Unduh hasil deteksi dalam format PDF atau Excel untuk pelaporan dan arsip.</p></div>
+    </div>
+  </section>
+</div>
+
+<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0f1520">
+  <div class="wrap section" id="cara">
+    <h2>Cara kerja</h2>
+    <div class="steps">
+      <div class="step"><div class="no">1</div><b>Data masuk</b><p>Flow jaringan dari sumber capture diterima oleh sistem.</p></div>
+      <div class="step"><div class="no">2</div><b>Preprocessing</b><p>Data dibersihkan, di-encode, dan di-scaling otomatis.</p></div>
+      <div class="step"><div class="no">3</div><b>Klasifikasi</b><p>Model XGBoost memprediksi jenis trafik beserta confidence.</p></div>
+      <div class="step"><div class="no">4</div><b>Ditampilkan</b><p>Hasil muncul di dashboard, memicu alert bila berisiko tinggi.</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="section" id="jenis">
+    <h2>13 jenis trafik yang dikenali</h2>
+    <p class="muted small" style="margin-bottom:14px">Satu kategori trafik normal dan 12 jenis serangan DDoS berbasis reflection maupun exploitation.</p>
+    {% for k in kelas %}<span class="pill">{{ k }}</span>{% endfor %}
+  </section>
+  <div class="cta">
+    <div><h3>Siap memantau jaringan Anda?</h3><p>Buat akun untuk mulai memakai dashboard. Akun baru diaktifkan oleh admin.</p></div>
+    <a class="btn light" href="{{ url_for('register') }}">Daftar Sekarang</a>
+  </div>
+  <div class="lfoot"><span>© 2026 DDoS Shield · Program Studi Keamanan Sistem Informasi</span><span>Politeknik Negeri Bengkalis</span></div>
+</div>
+{% endblock %}

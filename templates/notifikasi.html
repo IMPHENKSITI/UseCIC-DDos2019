@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Notifikasi — DDoS Shield{% endblock %}
+
+{% block body %}
+{# ========== TOP NAVBAR ========== #}
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="topnav-brand" href="{{ url_for('cari_deteksi') }}">
+      {% include "_shield.html" %} <span>DDoS Shield</span>
+    </a>
+    <div class="topnav-right">
+      <div class="topnav-menu-wrap">
+        <button class="topnav-menu-btn" onclick="this.parentElement.classList.toggle('open')">
+          <span class="ic">▦</span> Menu Saya ▾
+        </button>
+        <div class="topnav-dropdown">
+          <a href="{{ url_for('riwayat') }}">▭ Riwayat Deteksi</a>
+          <a href="{{ url_for('export') }}">⇩ Export Laporan</a>
+          <a href="{{ url_for('notifikasi') }}">◔ Notifikasi</a>
+          <a href="{{ url_for('pengaturan') }}">✲ Pengaturan Akun</a>
+          <div class="topnav-sep"></div>
+          <a href="{{ url_for('logout') }}">⎋ Keluar</a>
+        </div>
+      </div>
+      {% if unread %}
+      <a class="topnav-notif" href="{{ url_for('notifikasi') }}" title="Notifikasi">
+        🔔 <span class="topnav-badge">{{ unread }}</span>
+      </a>
+      {% endif %}
+      <a class="topnav-avatar" href="{{ url_for('profil') }}" title="Profil Saya">{{ inisial(user.nama) }}</a>
+    </div>
+  </div>
+</nav>
+
+{# ========== NOTIFIKASI CONTENT ========== #}
+<div class="cari-wrap">
+  <h1 class="cari-title">Notifikasi</h1>
+  <p class="cari-sub">Dibuat dari deteksi probabilitas tinggi</p>
+
+  <div class="notif-card">
+    {% for n in rows %}
+      <div class="notif-item {{ '' if n.baca else 'notif-unread' }}">
+        <span class="notif-dot dot-{{ n.level }}"></span>
+        <div class="notif-body">
+          <b class="notif-title">{{ n.judul }}</b>
+          <span class="notif-sub">{{ n.isi }}</span>
+        </div>
+      </div>
+    {% else %}
+      <div class="notif-item muted" style="justify-content:center;padding:28px">
+        Tidak ada notifikasi.
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

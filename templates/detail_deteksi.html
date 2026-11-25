@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Detail Deteksi — DDoS Shield{% endblock %}
+
+{% block body %}
+{# ========== TOP NAVBAR ========== #}
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="topnav-brand" href="{{ url_for('cari_deteksi') }}">
+      {% include "_shield.html" %} <span>DDoS Shield</span>
+    </a>
+    <div class="topnav-right">
+      <div class="topnav-menu-wrap">
+        <button class="topnav-menu-btn" onclick="this.parentElement.classList.toggle('open')">
+          <span class="ic">▦</span> Menu Saya ▾
+        </button>
+        <div class="topnav-dropdown">
+          <a href="{{ url_for('riwayat') }}">▭ Riwayat Deteksi</a>
+          <a href="{{ url_for('export') }}">⇩ Export Laporan</a>
+          <a href="{{ url_for('notifikasi') }}">◔ Notifikasi</a>
+          <a href="{{ url_for('pengaturan') }}">✲ Pengaturan Akun</a>
+          <div class="topnav-sep"></div>
+          <a href="{{ url_for('logout') }}">⎋ Keluar</a>
+        </div>
+      </div>
+      <a class="topnav-avatar" href="{{ url_for('profil') }}" title="Profil Saya">{{ inisial(user.nama) }}</a>
+    </div>
+  </div>
+</nav>
+
+{# ========== DETAIL CONTENT ========== #}
+<div class="cari-wrap">
+
+  <a href="{{ url_for('cari_deteksi') }}" class="detail-back">← Kembali ke pencarian</a>
+
+  <h1 class="cari-title">Detail Deteksi</h1>
+  <p class="cari-sub">Informasi lengkap hasil deteksi serangan</p>
+
+  <div class="detail-grid">
+
+    {# ---- Kartu utama: Info deteksi ---- #}
+    <div class="detail-card detail-main">
+      <div class="detail-header-row">
+        <div>
+          <span class="detail-label">Jenis Serangan</span>
+          <h2 class="detail-attack-name">{{ r.jenis }}</h2>
+        </div>
+        <span class="badge-level
+          {% if r.tingkat == 'Tinggi' %}level-tinggi
+          {% elif r.tingkat == 'Sedang' %}level-sedang
+          {% elif r.tingkat == 'Rendah' %}level-rendah
+          {% else %}level-normal{% endif %}"
+          style="font-size:13px;padding:6px 18px">
+          {{ r.tingkat }}
+        </span>
+      </div>
+
+      <div class="detail-info-grid">
+        <div class="detail-info-item">
+          <span class="detail-label">Waktu Deteksi</span>
+          <span class="detail-value">{{ r.waktu_str }}</span>
+        </div>
+        <div class="detail-info-item">
+          <span class="detail-label">IP Sumber</span>
+          <span class="detail-value mono">{{ r.ip }}</span>
+        </div>
+        <div class="detail-info-item">
+          <span class="detail-label">IP Tujuan</span>
+          <span class="detail-value mono">192.168.1.100</span>
+        </div>
+        <div class="detail-info-item">
+          <span class="detail-label">Protokol</span>
+          <span class="detail-value">{{ protokol }}</span>
+        </div>
+      </div>
+    </div>
+
+    {# ---- Kartu confidence ---- #}
+    <div class="detail-card">
+      <span class="detail-label">Confidence / Probabilitas</span>
+      <div class="detail-conf-value">{{ r.conf }}%</div>
+      <div class="detail-conf-bar">
+        <div class="detail-conf-fill
+          {% if r.conf >= 80 %}fill-tinggi
+          {% elif r.conf >= 60 %}fill-sedang
+          {% else %}fill-rendah{% endif %}"
+          style="width:{{ r.conf }}%"></div>
+      </div>
+      <div class="detail-conf-desc">
+        {% if r.conf >= 80 %}
+          Model sangat yakin ini adalah serangan <b>{{ r.jenis }}</b>.
+        {% elif r.conf >= 60 %}
+          Model cukup yakin ini adalah serangan <b>{{ r.jenis }}</b>.
+        {% else %}
+          Confidence rendah — kemungkinan false positive.
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  {# ---- Tabel detail teknis ---- #}
+  <div class="detail-card" style="margin-top:16px">
+    <h3 class="detail-section-title">Informasi Teknis</h3>
+    <table class="profil-table">
+      <tbody>
+        <tr>
+          <td>ID Deteksi</td>
+          <td>#DET-{{ "%05d"|format(idx) }}</td>
+        </tr>
+        <tr>
+          <td>Jenis Serangan</td>
+          <td><b>{{ r.jenis }}</b></td>
+        </tr>
+        <tr>
+          <td>IP Sumber</td>
+          <td class="mono">{{ r.ip }}</td>
+        </tr>
+        <tr>
+          <td>IP Tujuan</td>
+          <td class="mono">192.168.1.100</td>
+        </tr>
+        <tr>
+          <td>Port Tujuan</td>
+          <td class="mono">{{ port }}</td>
+        </tr>
+        <tr>
+          <td>Protokol</td>
+          <td>{{ protokol }}</td>
+        </tr>
+        <tr>
+          <td>Confidence</td>
+          <td>{{ r.conf }}%</td>
+        </tr>
+        <tr>
+          <td>Tingkat Risiko</td>
+          <td>
+            <span class="badge-level
+              {% if r.tingkat == 'Tinggi' %}level-tinggi
+              {% elif r.tingkat == 'Sedang' %}level-sedang
+              {% elif r.tingkat == 'Rendah' %}level-rendah
+              {% else %}level-normal{% endif %}">
+              {{ r.tingkat }}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>Prediksi Benar</td>
+          <td>
+            {% if r.prediksi_benar %}
+              <span class="badge-pill pill-yes">Ya</span>
+            {% else %}
+              <span class="badge-pill pill-no">Tidak</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Model yang Digunakan</td>
+          <td>XGBoost v1.0 (F1: 0,9994)</td>
+        </tr>
+        <tr>
+          <td>Waktu Deteksi</td>
+          <td>{{ r.waktu_str }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  {# ---- Deskripsi serangan ---- #}
+  <div class="detail-card" style="margin-top:16px">
+    <h3 class="detail-section-title">Tentang {{ r.jenis }}</h3>
+    <p class="detail-desc">{{ deskripsi }}</p>
+  </div>
+
+  <div style="margin-top:20px;display:flex;gap:10px">
+    <a class="btn primary" href="{{ url_for('cari_deteksi') }}">← Kembali ke Pencarian</a>
+    <a class="btn ghost" href="{{ url_for('riwayat') }}">Lihat Semua Riwayat</a>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "layout_app.html" %}
+{% block title %}Export Laporan — DDoS Shield{% endblock %}
+{% block heading %}Export Laporan{% endblock %}
+{% block subheading %}Unduh hasil deteksi{% endblock %}
+
+{% block content %}
+<form class="card export-card" method="post">
+  <div class="export-row">
+    <div class="export-field">
+      <label>Dari tanggal</label>
+      <input type="date" name="dari" value="2026-01-10">
+    </div>
+    <div class="export-field">
+      <label>Sampai tanggal</label>
+      <input type="date" name="sampai" value="2026-06-11">
+    </div>
+    <div class="export-field">
+      <label>Format</label>
+      <select name="format" style="width:100%">
+        <option value="PDF">PDF</option>
+        <option value="Excel">Excel</option>
+        <option value="CSV">CSV</option>
+      </select>
+    </div>
+  </div>
+  <div style="margin-top:18px">
+    <button class="btn primary export-btn" type="submit">Buat Laporan</button>
+  </div>
+</form>
+{% endblock %}

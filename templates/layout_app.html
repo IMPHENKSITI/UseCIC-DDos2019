@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{# Layout dengan sidebar untuk semua halaman setelah login (analis & admin) #}
+{% block body %}
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">{% include "_shield.html" %} DDoS Shield
+      {% if admin %}<span class="badge b-teal">ADMIN</span>{% endif %}
+    </div>
+
+    <nav class="nav">
+      {% if admin %}
+      <a href="{{ url_for('admin_ringkasan') }}" class="{{ 'on' if active=='a_ringkasan' }}"><span class="ic">▦</span>
+        Ringkasan Admin</a>
+      <a href="{{ url_for('admin_pengguna') }}" class="{{ 'on' if active=='a_pengguna' }}"><span class="ic">☺</span>
+        Manajemen Pengguna
+        {% if pending %}<span class="count y">{{ pending }}</span>{% endif %}</a>
+      <a href="{{ url_for('admin_model') }}" class="{{ 'on' if active=='a_model' }}"><span class="ic">⚙</span> Manajemen
+        Model</a>
+      <a href="{{ url_for('admin_log') }}" class="{{ 'on' if active=='a_log' }}"><span class="ic">▤</span> Log
+        Sistem</a>
+      <div class="side-note">Admin juga dapat membuka seluruh menu analis (Dashboard, Alert, Riwayat, dll).
+        <br><a href="{{ url_for('dashboard') }}">→ Buka menu analis</a>
+      </div>
+      {% else %}
+      <a href="{{ url_for('riwayat') }}" class="{{ 'on' if active=='riwayat' }}"><span class="ic">▭</span> Riwayat
+        Deteksi</a>
+      <a href="{{ url_for('export') }}" class="{{ 'on' if active=='export' }}"><span class="ic">⇩</span> Export
+        Laporan</a>
+      <a href="{{ url_for('notifikasi') }}" class="{{ 'on' if active=='notifikasi' }}"><span class="ic">◔</span>
+        Notifikasi</a>
+      <a href="{{ url_for('pengaturan') }}" class="{{ 'on' if active=='pengaturan' }}"><span class="ic">✲</span>
+        Pengaturan Akun</a>
+      {% if user and user.peran == 'admin' %}
+      <div class="side-note"><a href="{{ url_for('admin_ringkasan') }}">← Kembali ke menu admin</a></div>
+      {% endif %}
+      {% endif %}
+    </nav>
+
+    <div class="side-user">
+      <div class="avatar">{{ inisial(user.nama) }}</div>
+      <div>
+        <b>{{ user.nama }}</b>
+        <span>{{ 'Administrator' if user.peran=='admin' else 'user' }}</span>
+      </div>
+      <a href="{{ url_for('logout') }}" title="Keluar">⎋</a>
+    </div>
+
+    <div class="side-view-select">
+      <select onchange="if(this.value)window.location=this.value">
+        <option value="">Lihat sebagai: User</option>
+        <option value="{{ url_for('dashboard') }}">Dashboard (Analis)</option>
+        {% if user and user.peran == 'admin' %}
+        <option value="{{ url_for('admin_ringkasan') }}">Admin Panel</option>
+        {% endif %}
+      </select>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>{% block heading %}{% endblock %}</h1>
+        <p>{% block subheading %}{% endblock %}</p>
+      </div>
+      <div class="right">{% block topright %}{% endblock %}</div>
+    </header>
+    <div class="content">
+      {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

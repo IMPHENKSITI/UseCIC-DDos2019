@@ -1,0 +1,21 @@
+{% extends "layout_app.html" %}
+{% block title %}Monitoring Real-time — DDoS Shield{% endblock %}
+{% block heading %}Monitoring Real-time{% endblock %}
+{% block subheading %}Flow jaringan yang sedang diproses &amp; diklasifikasikan model{% endblock %}
+{% block topright %}<span class="live">Live</span>{% endblock %}
+
+{% block content %}
+<div class="grid4">
+  <div class="card stat"><div class="lbl">Flow / detik</div><div class="val" id="fps">147</div></div>
+  <div class="card stat"><div class="lbl">Terdeteksi serangan (1 mnt)</div><div class="val red" id="atk">12</div></div>
+  <div class="card stat"><div class="lbl">Latensi rata-rata</div><div class="val" id="lat">38 ms</div></div>
+  <div class="card stat"><div class="lbl">Model aktif</div><div class="val blue" style="font-size:14px;margin-top:9px">XGBoost</div></div>
+</div>
+<div class="tbl-wrap">
+  <table class="tbl">
+    <thead><tr><th>Waktu</th><th>Source IP:Port</th><th>Dest IP:Port</th><th>Protokol</th><th>Prediksi Model</th><th>Confidence</th></tr></thead>
+    <tbody id="flow-body"></tbody>
+  </table>
+</div>
+<p class="muted small">Baris baru otomatis muncul di atas setiap ada flow masuk. Klik baris mana pun untuk detail fitur lengkap flow tersebut.</p>
+{% endblock %}

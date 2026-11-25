@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Cari Deteksi Serangan — DDoS Shield{% endblock %}
+
+{% block body %}
+{# ========== TOP NAVBAR ========== #}
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a class="topnav-brand" href="{{ url_for('cari_deteksi') }}">
+      {% include "_shield.html" %} <span>DDoS Shield</span>
+    </a>
+    <div class="topnav-right">
+      <div class="topnav-menu-wrap">
+        <button class="topnav-menu-btn" onclick="this.parentElement.classList.toggle('open')">
+          <span class="ic">▦</span> Menu Saya ▾
+        </button>
+        <div class="topnav-dropdown">
+          <a href="{{ url_for('riwayat') }}">▭ Riwayat Deteksi</a>
+          <a href="{{ url_for('export') }}">⇩ Export Laporan</a>
+          <a href="{{ url_for('notifikasi') }}">◔ Notifikasi</a>
+          <a href="{{ url_for('pengaturan') }}">✲ Pengaturan Akun</a>
+          <div class="topnav-sep"></div>
+          <a href="{{ url_for('logout') }}">⎋ Keluar</a>
+        </div>
+      </div>
+      {% if unread %}
+      <a class="topnav-notif" href="{{ url_for('notifikasi') }}" title="Notifikasi">
+        🔔 <span class="topnav-badge">{{ unread }}</span>
+      </a>
+      {% endif %}
+      <a class="topnav-avatar" href="{{ url_for('profil') }}" title="Profil Saya">{{ inisial(user.nama) }}</a>
+    </div>
+  </div>
+</nav>
+
+{# ========== MAIN CONTENT ========== #}
+<div class="cari-wrap">
+
+  {# -- Greeting + Title -- #}
+  <p class="cari-hello">Halo, {{ user.nama }}</p>
+  <h1 class="cari-title">Cari Deteksi Serangan</h1>
+  <p class="cari-sub">Cari berdasarkan IP sumber, IP tujuan, atau jenis serangan. Menu lainnya ada di Menu Saya.</p>
+
+  {# -- Search bar -- #}
+  <form method="get" class="cari-form" id="cariForm">
+    <div class="cari-search-row">
+      <span class="cari-search-icon">🔍</span>
+      <input type="text" name="q" value="{{ f.q }}" placeholder="Contoh: 172.16.0.19 atau Syn" class="cari-input">
+      <button type="submit" class="btn primary cari-btn">Cari</button>
+    </div>
+
+    {# -- Filters -- #}
+    <div class="cari-filters">
+      <select name="jenis" onchange="document.getElementById('cariForm').submit()">
+        <option value="">Semua jenis trafik</option>
+        {% for k in kelas %}<option {{ 'selected' if f.jenis==k }}>{{ k }}</option>{% endfor %}
+      </select>
+      <select name="tingkat" onchange="document.getElementById('cariForm').submit()">
+        <option value="">Semua tingkat</option>
+        <option {{ 'selected' if f.tingkat=='Tinggi' }}>Tinggi</option>
+        <option {{ 'selected' if f.tingkat=='Sedang' }}>Sedang</option>
+        <option {{ 'selected' if f.tingkat=='Rendah' }}>Rendah</option>
+      </select>
+      <select name="waktu" onchange="document.getElementById('cariForm').submit()">
+        <option value="">Semua waktu</option>
+        <option {{ 'selected' if f.waktu=='hari' }}>Hari ini</option>
+        <option {{ 'selected' if f.waktu=='minggu' }} value="minggu">7 hari terakhir</option>
+        <option {{ 'selected' if f.waktu=='bulan' }} value="bulan">30 hari terakhir</option>
+      </select>
+      <select name="urut" onchange="document.getElementById('cariForm').submit()">
+        <option value="baru" {{ 'selected' if f.urut=='baru' }}>Terbaru</option>
+        <option value="lama" {{ 'selected' if f.urut=='lama' }}>Terlama</option>
+        <option value="conf" {{ 'selected' if f.urut=='conf' }}>Confidence tertinggi</option>
+      </select>
+    </div>
+
+    {# -- Quick pills -- #}
+    <div class="cari-pills">
+      <span class="cari-pills-label">Pencarian cepat:</span>
+      {% for k in kelas %}
+      <a href="{{ url_for('cari_deteksi', jenis=k) }}" class="cari-pill {{ 'cari-pill-on' if f.jenis==k }}">{{ k }}</a>
+      {% endfor %}
+    </div>
+  </form>
+
+  {# -- Results table -- #}
+  <div class="cari-results-header">
+    <h2 class="cari-results-title">Deteksi terbaru</h2>
+    <span class="cari-results-info">Menampilkan {{ rows|length }} dari {{ total }} data</span>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Jenis Serangan</th>
+          <th>IP Sumber</th>
+          <th>Confidence</th>
+          <th>Tingkat</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>{{ r.waktu_str }}</td>
+          <td><b>{{ r.jenis }}</b></td>
+          <td>{{ r.ip }}</td>
+          <td>{{ r.conf }}%</td>
+          <td>
+            <span class="badge-level
+              {% if r.tingkat == 'Tinggi' %}level-tinggi
+              {% elif r.tingkat == 'Sedang' %}level-sedang
+              {% elif r.tingkat == 'Rendah' %}level-rendah
+              {% else %}level-normal{% endif %}">
+              {{ r.tingkat }}
+            </span>
+          </td>
+          <td><a class="btn ghost sm cari-detail-btn" href="{{ url_for('detail_deteksi', idx=r._idx) }}">Detail</a></td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="muted" style="text-align:center;padding:32px">Tidak ada hasil ditemukan.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# -- Pagination -- #}
+  {% if total_pages > 1 %}
+  <div class="cari-pagination">
+    <span class="cari-page-info">Halaman {{ page }} dari {{ total_pages }}</span>
+    <div class="cari-page-btns">
+      {% if page > 1 %}
+        <a class="btn ghost sm" href="{{ url_for('cari_deteksi', q=f.q, jenis=f.jenis, tingkat=f.tingkat, waktu=f.waktu, urut=f.urut, page=page-1) }}">← Sebelumnya</a>
+      {% endif %}
+      {% if page < total_pages %}
+        <a class="btn ghost sm" href="{{ url_for('cari_deteksi', q=f.q, jenis=f.jenis, tingkat=f.tingkat, waktu=f.waktu, urut=f.urut, page=page+1) }}">Berikutnya →</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# -- CTA bottom -- #}
+  <div class="cari-cta">
+    <div>
+      <b>Butuh yang lain?</b>
+      <span class="cari-cta-sub">Lihat seluruh riwayat, buat laporan, atur notifikasi, dan kelola akun dari Menu Saya.</span>
+    </div>
+    <button class="btn primary cari-cta-btn" onclick="document.querySelector('.topnav-menu-wrap').classList.toggle('open')">Buka Menu Saya →</button>
+  </div>
+
+</div>
+{% endblock %}

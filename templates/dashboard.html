@@ -1,0 +1,69 @@
+{% extends "layout_app.html" %}
+{% block title %}Dashboard — DDoS Shield{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block subheading %}Ringkasan deteksi serangan DDoS — hari ini{% endblock %}
+{% block topright %}
+<form method="get" action="{{ url_for('alert') }}" style="display:inline;margin:0;">
+  <input name="q" placeholder="Cari alert / IP sumber">
+</form>
+<a href="{{ url_for('notifikasi') }}" class="btn ghost sm" title="Notifikasi">◔{% if unread %} {{ unread }}{% endif %}</a>
+<span class="avatar" style="background:#e8eef6;color:#0a2647">{{ inisial(user.nama) }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="grid4">
+  <div class="card stat">
+    <div class="lbl">Total alur dianalisis</div>
+    <div class="val">{{ '{:,}'.format(s.total).replace(',', '.') }}</div>
+    <div class="sub">flow dataset CICDDoS2019</div>
+  </div>
+  <div class="card stat">
+    <div class="lbl">Serangan terdeteksi</div>
+    <div class="val red">{{ '{:,}'.format(s.serangan).replace(',', '.') }}</div>
+    <div class="sub">{{ (s.serangan / s.total * 100)|round(1) }}% terindikasi DDoS</div>
+  </div>
+  <div class="card stat">
+    <div class="lbl">Trafik normal</div>
+    <div class="val green">{{ '{:,}'.format(s.normal).replace(',', '.') }}</div>
+    <div class="sub">diklasifikasi BENIGN</div>
+  </div>
+  <div class="card stat">
+    <div class="lbl">Recall serangan</div>
+    <div class="val blue">{{ s.recall }}</div>
+    <div class="sub">XGBoost · Minggu6_XGBoost.pkl</div>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h3>Distribusi Jenis Trafik — 24 Jam Terakhir</h3>
+    {% for n, p, c in dist %}
+    <div class="hbar"><span class="n">{{ n }}</span><span class="t"><i data-w="{{ p }}" data-c="{{ c }}"></i></span><span class="p">{{ p }}%</span></div>
+    {% endfor %}
+  </div>
+  <div class="card">
+    <div class="row">
+      <h3>Alert Terbaru</h3><a class="small" href="{{ url_for('alert') }}">Lihat semua →</a>
+    </div>
+    {% for a in alerts %}
+    <div class="alert-item"><span
+        class="dot {{ 'red' if a.tingkat=='Tinggi' else 'yellow' if a.tingkat=='Sedang' else 'green' }}"></span>
+      <div><b>{{ a.jenis }} · {{ a.ip }}</b><span>{{ a.waktu[:5] }} · confidence {{ a.conf }}%{% if
+          a.status.startswith('Diverifikasi') %} · diverifikasi aman{% endif %}</span></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card row">
+  <div class="row" style="gap:28px">
+    <div>
+      <div class="muted small">PERFORMA MODEL AKTIF</div><b>XGBoost v1.0 (Dataset CICDDoS2019)</b>
+    </div>
+    <div><span class="muted small">Precision</span><br><b>0,9993</b></div>
+    <div><span class="muted small">Recall</span><br><b>0,9994</b></div>
+    <div><span class="muted small">F1-score</span><br><b>0,9994</b></div>
+  </div>
+  <a class="btn primary" href="{{ url_for('performa') }}">Lihat Detail Performa</a>
+</div>
+{% endblock %}
